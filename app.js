@@ -19,9 +19,6 @@
 
   const $ = (id) => document.getElementById(id);
   const board = $("board");
-  const pill = $("pill");
-  const pillLabel = $("pill-label");
-  const pillValue = $("pill-value");
   const status = $("status");
   const nameInput = $("name");
   const copyBtn = $("copy");
@@ -111,24 +108,17 @@
     for (let i = 0; i < 64; i++) {
       const v = state.values[i];
       const el = squares[i];
-      el.firstChild.textContent = fmt(v);
-      el.classList.toggle("zero", v === 0);
+      const pending = entry !== null && state.selected.has(i);
+      el.firstChild.textContent = pending ? entry.replace("-", "−") : fmt(v);
+      el.classList.toggle("pending", pending);
+      el.classList.toggle("zero", v === 0 && !pending);
       el.classList.toggle("neg", v < 0);
       el.classList.toggle("sel", state.selected.has(i));
       el.style.setProperty("--t", ((Math.abs(v) / max) * 0.28).toFixed(3));
       el.setAttribute("aria-label", `${sqName(i)} ${v}`);
       el.setAttribute("aria-selected", state.selected.has(i));
     }
-    renderPill();
     renderStatus();
-  }
-
-  function renderPill() {
-    if (entry === null) { pill.hidden = true; return; }
-    const n = state.selected.size;
-    pillLabel.textContent = n === 1 ? `Set ${sqName([...state.selected][0])}` : `Set ${n} squares`;
-    pillValue.textContent = entry.replace("-", "−");
-    pill.hidden = false;
   }
 
   let flashTimer = 0;
@@ -162,6 +152,7 @@
   // ---------- selection ----------
 
   let drag = null; // { mode: "add" | "remove" }
+  let anchor = -1; // last clicked square, corner for shift-click areas
 
   function squareAt(x, y) {
     const el = document.elementFromPoint(x, y);
@@ -180,16 +171,19 @@
     const i = squareAt(e.clientX, e.clientY);
     if (i < 0) return;
     e.preventDefault();
-    cancelEntry();
-    const additive = e.shiftKey || e.metaKey || e.ctrlKey;
-    if (additive) {
-      drag = { mode: state.selected.has(i) ? "remove" : "add" };
+    if (e.shiftKey && anchor >= 0) {
+      // select the rectangle spanned by the anchor and this square
+      const r0 = Math.min(anchor >> 3, i >> 3), r1 = Math.max(anchor >> 3, i >> 3);
+      const f0 = Math.min(anchor & 7, i & 7), f1 = Math.max(anchor & 7, i & 7);
+      for (let r = r0; r <= r1; r++) for (let f = f0; f <= f1; f++) state.selected.add(r * 8 + f);
+      anchor = i;
     } else {
-      state.selected.clear();
-      drag = { mode: "add" };
+      // clicking toggles; a drag keeps doing whatever the first square did
+      drag = { mode: state.selected.has(i) ? "remove" : "add" };
+      applyDrag(i);
+      anchor = i;
+      board.setPointerCapture(e.pointerId);
     }
-    applyDrag(i);
-    board.setPointerCapture(e.pointerId);
     if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
     render();
   });
@@ -207,7 +201,7 @@
   board.addEventListener("pointercancel", endDrag);
 
   document.addEventListener("pointerdown", (e) => {
-    if (e.target.closest(".board, .controls, .pill")) return;
+    if (e.target.closest(".board, .controls")) return;
     if (!state.selected.size && entry === null) return;
     entry = null;
     state.selected.clear();
@@ -219,14 +213,16 @@
   function cancelEntry() {
     if (entry === null) return;
     entry = null;
-    renderPill();
+    render();
   }
 
+  // applying a typed value finishes the edit, so the next clicks start a fresh selection
   function applyEntry() {
     const v = parseInt(entry, 10);
     entry = null;
-    if (Number.isNaN(v)) { renderPill(); return; }
-    commit(() => { for (const i of state.selected) state.values[i] = clamp(v); });
+    if (!Number.isNaN(v)) commit(() => { for (const i of state.selected) state.values[i] = clamp(v); });
+    state.selected.clear();
+    anchor = -1;
     render();
   }
 
@@ -265,7 +261,7 @@
       if (entry === null) entry = "";
       if (k === "-") entry = entry.startsWith("-") ? entry.slice(1) : "-" + entry;
       else if (entry.replace("-", "").length < 10) entry = (entry === "0" ? "" : entry === "-0" ? "-" : entry) + k;
-      renderPill();
+      render();
       return;
     }
 
@@ -276,7 +272,7 @@
         e.preventDefault();
         entry = entry.slice(0, -1);
         if (entry === "") entry = null;
-        renderPill();
+        render();
       }
       return;
     }
@@ -291,6 +287,7 @@
       commit(() => { for (const i of state.selected) state.values[i] = 0; });
     } else if (k === "Escape") {
       state.selected.clear();
+      anchor = -1;
       render();
     }
   });

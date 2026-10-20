@@ -6,10 +6,10 @@ A minimal piece-square-table editor. Select squares, type a number, copy the tab
 
 | Action | Input |
 | --- | --- |
-| Select | click, or drag across squares |
-| Add/remove from selection | <kbd>⇧</kbd>/<kbd>⌘</kbd> + click or drag |
-| Select all | <kbd>⌘A</kbd> |
-| Set value | type a number, <kbd>↵</kbd> |
+| Select / deselect | click (toggles), or drag (adds or removes, depending on the first square) |
+| Select an area | click one corner, <kbd>⇧</kbd>+click the other |
+| Select all / clear | <kbd>⌘A</kbd> / <kbd>Esc</kbd> |
+| Set value | type a number (shown live in every selected square), <kbd>↵</kbd> applies and clears the selection |
 | Nudge | <kbd>↑</kbd>/<kbd>↓</kbd> ±1, with <kbd>⇧</kbd> ±10 |
 | Zero selection | <kbd>⌫</kbd> |
 | Undo / redo | <kbd>⌘Z</kbd> / <kbd>⇧⌘Z</kbd> |

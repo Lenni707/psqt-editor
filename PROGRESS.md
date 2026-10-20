@@ -14,8 +14,8 @@
 
 ## Checklist
 - [x] Board, rank/file labels, value tint
-- [x] Click / drag / modifier selection, ⌘A
-- [x] Typed entry pill, ↑↓ nudge, ⌫ zero, undo/redo
+- [x] Toggle selection by default, drag paint, ⇧+click rectangle from anchor, ⌘A, Esc
+- [x] Typed entry shown in every selected tile, ↑↓ nudge, ⌫ zero, undo/redo
 - [x] Rust export (i16/i32, a8/a1 order), clipboard
 - [x] Paste import (64 ints), localStorage persistence
 - [x] Light/dark, phone layout
@@ -23,3 +23,4 @@
 
 ## Log
 - 2026-10-20: Initial build. Verified in headless Chrome (puppeteer): drag select, multi-select set, nudges, undo, export in both orders, round-trip import, no overflow at 390px. Exported Rust compiles (`rustc --emit=metadata`).
+- 2026-10-20: Selection is now additive by default (click toggles; a drag keeps the first square's add/remove mode). ⇧+click selects the rectangle from the last clicked square. Removed the centered pill: the pending value is drawn in every selected tile. Enter applies the value and clears the selection.
