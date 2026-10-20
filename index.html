@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PSQT Editor</title>
+  <meta name="description" content="Edit chess piece-square tables and export them as Rust arrays.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 4'%3E%3Cpath fill='%23b9a88f' d='M0 0h4v4H0z'/%3E%3Cpath fill='%23786a58' d='M0 0h2v2H0zM2 2h2v2H2z'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <span class="mark">PSQT</span>
+      <span class="status" id="status" aria-live="polite"></span>
+    </header>
+
+    <div class="board-wrap">
+      <div class="ranks" aria-hidden="true"></div>
+      <div class="board" id="board" role="grid" aria-label="Piece-square table"></div>
+      <div class="files" aria-hidden="true"></div>
+      <div class="pill" id="pill" hidden>
+        <span class="pill-label" id="pill-label"></span>
+        <span class="pill-value" id="pill-value"></span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <label class="name">
+        <span class="kw">const</span>
+        <input id="name" spellcheck="false" autocomplete="off" value="PST" aria-label="Constant name">
+      </label>
+      <div class="seg" id="type" role="radiogroup" aria-label="Element type">
+        <button data-v="i16" role="radio">i16</button>
+        <button data-v="i32" role="radio">i32</button>
+      </div>
+      <div class="seg" id="order" role="radiogroup" aria-label="Index order">
+        <button data-v="a8" role="radio" title="Index 0 = a8 (as seen on the board)">a8 first</button>
+        <button data-v="a1" role="radio" title="Index 0 = a1 (little-endian rank-file)">a1 first</button>
+      </div>
+      <button class="copy" id="copy">Copy Rust</button>
+    </div>
+
+    <p class="hint">
+      <span><kbd>click</kbd>/<kbd>drag</kbd> select</span>
+      <span><kbd>⇧</kbd> add</span>
+      <span>type a number, <kbd>↵</kbd> set</span>
+      <span><kbd>↑</kbd><kbd>↓</kbd> ±1 (<kbd>⇧</kbd> ±10)</span>
+      <span><kbd>⌘Z</kbd> undo</span>
+      <span><kbd>⌘V</kbd> import</span>
+    </p>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
